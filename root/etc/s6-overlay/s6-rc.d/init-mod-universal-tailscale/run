@@ -18,7 +18,8 @@ if [ -f /sbin/apk ]; then
         # iptables" >> /mod-repo-packages-to-install.list
 fi
 
-if [ -v TAILSCALE_AUTO_UPDATE ]; then
+echo "TAILSCALE_USE_IPTABLES: $TAILSCALE_USE_IPTABLES"
+if [ -v TAILSCALE_USE_IPTABLES ]; then
     echo "enabling IPTables installation"
     echo "iptables" >> /mod-repo-packages-to-install.list
 fi

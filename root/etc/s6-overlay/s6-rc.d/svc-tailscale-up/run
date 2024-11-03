@@ -57,7 +57,7 @@ else
 fi
 
 # set auto-update
-if [ -v TAILSCALE_FURTHER_FLAGS ]; then
+if [ -v TAILSCALE_AUTO_UPDATE ]; then
     echo '[!] Setting up auto-updating of tailscale'
     tailscale update -yes
 fi
