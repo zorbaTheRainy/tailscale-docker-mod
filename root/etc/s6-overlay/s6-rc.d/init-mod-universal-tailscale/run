@@ -1,6 +1,6 @@
 #!/usr/bin/with-contenv bash
 
-## Ubuntu
+## Ubuntu/Debian
 if [ -f /usr/bin/apt ]; then
     echo "\
         curl \
@@ -18,20 +18,18 @@ if [ -f /sbin/apk ]; then
         # iptables" >> /mod-repo-packages-to-install.list
 fi
 
+# -------------------------------------------
+is_true() {
+    local var_value=$(eval echo \$$1)
+    case "${var_value,,}" in
+        1|true|t) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+# -------------------------------------------
+
 echo "TAILSCALE_USE_IPTABLES: $TAILSCALE_USE_IPTABLES"
-enable_flag=${TAILSCALE_USE_IPTABLES}
-# convert int to str
-if [ "${enable_flag}" -eq 1 ] 2>/dev/null; then
-    enable_flag="true"
-elif [ "${enable_flag}" -eq 0 ] 2>/dev/null; then
-    enable_flag="false"
-fi
-
-# Convert enable_flag to lowercase for comparison
-enable_flag_lower=$(echo "${enable_flag}" | tr '[:upper:]' '[:lower:]')
-
-# perform the actual check
-if [ "${enable_flag_lower}" == "true" ]; then
+if is_true "TAILSCALE_USE_IPTABLES"; then
     echo "enabling IPTables installation"
     echo "iptables" >> /mod-repo-packages-to-install.list
 else

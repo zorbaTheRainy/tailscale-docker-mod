@@ -1,5 +1,15 @@
 #!/usr/bin/with-contenv bash
 
+# -------------------------------------------
+is_true() {
+    local var_value=$(eval echo \$$1)
+    case "${var_value,,}" in
+        1|true|t) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+# -------------------------------------------
+
 FLAGS=""
 
 # configure `tailscale up`
@@ -14,12 +24,12 @@ if [ -v TAILSCALE_HOSTNAME ]; then
     FLAGS="${FLAGS} --hostname=${TAILSCALE_HOSTNAME}"
 fi
 
-if [ -v TAILSCALE_USE_SSH ]; then
+if is_true "TAILSCALE_USE_SSH" ; then
     echo '[!] allowing SSH server'
     FLAGS="${FLAGS} --ssh=${TAILSCALE_USE_SSH}"
 fi
 
-if [ -v TAILSCALE_BE_EXIT_NODE ]; then
+if is_true "TAILSCALE_BE_EXIT_NODE"; then
     echo '[!] acting as an exit node, you may need to approve this in the admin console'
     FLAGS="${FLAGS} --advertise-exit-node=${TAILSCALE_BE_EXIT_NODE}"
 fi
@@ -29,7 +39,7 @@ if [ -v TAILSCALE_LOGIN_SERVER ]; then
     FLAGS="${FLAGS} --login-server=${TAILSCALE_LOGIN_SERVER}"
 fi
 
-if [ -v TAILSCALE_STATEFUL_FILTERING ]; then
+if is_true "TAILSCALE_STATEFUL_FILTERING" ; then
     echo '[!] inbound packets with another node destination IP are dropped (stateful filtering)'
     FLAGS="${FLAGS} --stateful-filtering"
 fi
@@ -43,7 +53,7 @@ tailscale up $FLAGS
 
 # configure serve or funnel
 if [ -v TAILSCALE_SERVE_PORT ] && [ -v TAILSCALE_SERVE_MODE ]; then
-    if [ -v TAILSCALE_FUNNEL ]; then
+    if is_true "TAILSCALE_FUNNEL" ; then
         echo '[!] enabling Tailsclae Funnel'
         tailscale funnel --bg --"${TAILSCALE_SERVE_MODE}"=443 http://localhost:"${TAILSCALE_SERVE_PORT}"
     else
@@ -57,7 +67,7 @@ else
 fi
 
 # set auto-update
-if [ -v TAILSCALE_AUTO_UPDATE ]; then
+if is_true "TAILSCALE_AUTO_UPDATE" ; then
     echo '[!] Setting up auto-updating of tailscale'
     tailscale update -yes
 fi

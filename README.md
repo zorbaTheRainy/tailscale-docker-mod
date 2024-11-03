@@ -13,13 +13,14 @@ This is a fork of [tailscale-dev/docker-mod](https://github.com/tailscale-dev/do
 ### Changes
 
 * removed the installation of `iptables`, which was causing the error `failed: could not setup netfilter: could not create new netfilter: could not get iptables version: exit status 1`.  This forces `tailscaled --tun=userspace-networking`.  `TAILSCALE_USE_IPTABLES` will revert this change.
-* added the ENV `TAILSCALE_FURTHER_FLAGS` which is a more elegant way of adding `tailscale up <flags>` than overloading the other ENV with your desired, unsupported flag.
-* added the ENV `TAILSCALE_AUTO_UPDATE` to enable upgrading Tailscale.
-* added the ENV `TAILSCALE_STATEFUL_FILTERING` which sets `tailscale up --stateful-filtering`. Addresses the issue: [No longer working #24](https://github.com/tailscale-dev/docker-mod/issues/24) (chukysoria)
-* added `wget` fallback option in response to issue [Mod fails to initialize due to slow CURL #27](https://github.com/tailscale-dev/docker-mod/issues/27) (pandalanax)
-* merged edits from [chukysoria/docker-tailscale-mod](https://github.com/chukysoria/docker-tailscale-mod) and [pandalanax/docker-mod](https://github.com/pandalanax/docker-mod)
+* better detection of true/false ENVs (e.g., `TAILSCALE_USE_SSH`).  Instead of merely checking if the ENV exists, it now checks if the ENV has a value that means `true` (TRUE is '1', 'true', or 't' (case insensative); all else is FALSE).
+* added the ENV `TAILSCALE_FURTHER_FLAGS` which is a more elegant way of adding `tailscale up <flags>` than overloading another ENV with your desired, unsupported flag.
+* added the ENV `TAILSCALE_AUTO_UPDATE` to enable automatically upgrading Tailscale.
+* added the ENV `TAILSCALE_STATEFUL_FILTERING` which sets `tailscale up --stateful-filtering`. Addresses the issue: [No longer working #24](https://github.com/tailscale-dev/docker-mod/issues/24) (chukysoria).
+* added `wget` fallback option in response to issue [Mod fails to initialize due to slow CURL #27](https://github.com/tailscale-dev/docker-mod/issues/27) (pandalanax).
+* merged edits from [chukysoria/docker-tailscale-mod](https://github.com/chukysoria/docker-tailscale-mod) and [pandalanax/docker-mod](https://github.com/pandalanax/docker-mod).
 * fixed a typo in `TAILSCALE_BE_EXIT_NODE`, issue: [Incorrect Exit node environment variables #6](https://github.com/tailscale-dev/docker-mod/issues/6).  **Note**: `tailscale/tailscale` ([DockerHub](https://hub.docker.com/r/tailscale/tailscale)) is a better option if all you want is an exit node.
-* updated README
+* updated README.
 
 ## Configuration
 
@@ -33,9 +34,9 @@ The Docker mod exposes a bunch of environment variables that you can use to conf
 | Environment Variable (`tailscaled` & Docker mod) | Description | Example |
 | :--------------------------------------------- | :---------- | :------ |
 | `DOCKER_MODS` | The list of additional mods to layer on top of the running container, separated by pipes. | `ghcr.io/tailscale-dev/docker-mod:main` or `zorbatherainy/tailscale-docker-mod:latest` |
+| `TAILSCALE_STATE_DIR` | The directory where the Tailscale state will be stored, this should be pointed to a Docker volume. If it is not, then the node will set itself as ephemeral, making the node disappear from your tailnet when the container exits. | `/var/lib/tailscale` |
 | `TAILSCALE_USE_IPTABLES` (new) | `iptables` was causing problems. So, I disbaled it.  If you want it back, set this ENV. | `1` |
 | `TAILSCALE_AUTO_UPDATE` (new) | when set, Tailscale will auto-update to the latest verison without prompting. | `1` |
-| `TAILSCALE_STATE_DIR` | The directory where the Tailscale state will be stored, this should be pointed to a Docker volume. If it is not, then the node will set itself as ephemeral, making the node disappear from your tailnet when the container exits. | `/var/lib/tailscale` |
 | `TAILSCALE_TAILSCALED_LOG` (undocumented) | If enabled the tailscale log will be dumped to `/dev/null` (i.e., deleted) | `1` |
 
 | Environment Variable (`tailscale up`) | Description | Example |
