@@ -10,10 +10,12 @@ else
 fi
 
 if [ -v TAILSCALE_HOSTNAME ]; then
+    echo '[!] setting tailscale hostname'
     FLAGS="${FLAGS} --hostname=${TAILSCALE_HOSTNAME}"
 fi
 
 if [ -v TAILSCALE_USE_SSH ]; then
+    echo '[!] allowing SSH server'
     FLAGS="${FLAGS} --ssh=${TAILSCALE_USE_SSH}"
 fi
 
@@ -28,12 +30,12 @@ if [ -v TAILSCALE_LOGIN_SERVER ]; then
 fi
 
 if [ -v TAILSCALE_STATEFUL_FILTERING ]; then
-    echo '[!] Using a custom login server'
+    echo '[!] inbound packets with another node destination IP are dropped (stateful filtering)'
     FLAGS="${FLAGS} --stateful-filtering"
 fi
 
 if [ -v TAILSCALE_FURTHER_FLAGS ]; then
-    echo '[!] Using a custom login server'
+    echo '[!] adding additional flags to `tailscale up`'
     FLAGS="${FLAGS} ${TAILSCALE_FURTHER_FLAGS}"
 fi
 
@@ -42,11 +44,20 @@ tailscale up $FLAGS
 # configure serve or funnel
 if [ -v TAILSCALE_SERVE_PORT ] && [ -v TAILSCALE_SERVE_MODE ]; then
     if [ -v TAILSCALE_FUNNEL ]; then
+        echo '[!] enabling Tailsclae Funnel'
         tailscale funnel --bg --"${TAILSCALE_SERVE_MODE}"=443 http://localhost:"${TAILSCALE_SERVE_PORT}"
     else
+        echo '[!] enabling Tailsclae Serve mode'
         tailscale serve --bg --"${TAILSCALE_SERVE_MODE}"=443 http://localhost:"${TAILSCALE_SERVE_PORT}"
     fi
 else
+    echo '[!] clearing any Tailsclae Server/Funnel options'
     tailscale serve reset
     tailscale funnel reset 
+fi
+
+# set auto-update
+if [ -v TAILSCALE_FURTHER_FLAGS ]; then
+    echo '[!] Setting up auto-updating of tailscale'
+    tailscale update -yes
 fi

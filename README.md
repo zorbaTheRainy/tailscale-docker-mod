@@ -12,12 +12,13 @@ This is a fork of [tailscale-dev/docker-mod](https://github.com/tailscale-dev/do
 
 ### Changes
 
-* removed the installation of `iptables`, this forces `tailscaled --tun=userspace-networking` which it should have been using anyhow, but if `iptables` was installed, it didn't actually use.
-* added the ENV `TAILSCALE_FURTHER_FLAGS` which is a more elegant way of adding `tailscale up <flags>`.
+* removed the installation of `iptables`, which was causing the error .  This forces `tailscaled --tun=userspace-networking` which it should have been using anyhow, but if `iptables` was installed, it didn't actually use.  `TAILSCALE_USE_IPTABLES` will revert this change.
+* added the ENV `TAILSCALE_FURTHER_FLAGS` which is a more elegant way of adding `tailscale up <flags>` than overloading the other ENV with your desired, unsupported flag.
+* added the ENV `TAILSCALE_AUTO_UPDATE` to enable upgrading Tailscale.
 * added the ENV `TAILSCALE_STATEFUL_FILTERING` which sets `tailscale up --stateful-filtering`. Addresses the issue: [No longer working #24](https://github.com/tailscale-dev/docker-mod/issues/24) (chukysoria)
 * added `wget` fallback option in response to issue [Mod fails to initialize due to slow CURL #27](https://github.com/tailscale-dev/docker-mod/issues/27) (pandalanax)
 * merged edits from [chukysoria/docker-tailscale-mod](https://github.com/chukysoria/docker-tailscale-mod) and [pandalanax/docker-mod](https://github.com/pandalanax/docker-mod)
-* fixed a typo in `TAILSCALE_BE_EXIT_NODE`, issue: [Incorrect Exit node environment variables #6](https://github.com/tailscale-dev/docker-mod/issues/6) (**but have not tested it**)
+* fixed a typo in `TAILSCALE_BE_EXIT_NODE`, issue: [Incorrect Exit node environment variables #6](https://github.com/tailscale-dev/docker-mod/issues/6).  **Note**: `tailscale/tailscale` ([DockerHub](https://hub.docker.com/r/tailscale/tailscale)) is a better option if all you want is an exit node.
 * updated README
 
 ## Configuration
@@ -32,6 +33,8 @@ The Docker mod exposes a bunch of environment variables that you can use to conf
 | Environment Variable (`tailscaled` & Docker mod) | Description | Example |
 | :--------------------------------------------- | :---------- | :------ |
 | `DOCKER_MODS` | The list of additional mods to layer on top of the running container, separated by pipes. | `ghcr.io/tailscale-dev/docker-mod:main` or `zorbatherainy/tailscale-docker-mod:latest` |
+| `TAILSCALE_USE_IPTABLES` (new) | `iptables` was causing problems. So, I disbaled it.  If you want it back, set this ENV. | `1` |
+| `TAILSCALE_AUTO_UPDATE` (new) | when set, Tailscale will auto-update to the latest verison without prompting. | `1` |
 | `TAILSCALE_STATE_DIR` | The directory where the Tailscale state will be stored, this should be pointed to a Docker volume. If it is not, then the node will set itself as ephemeral, making the node disappear from your tailnet when the container exits. | `/var/lib/tailscale` |
 | `TAILSCALE_TAILSCALED_LOG` (undocumented) | If enabled the tailscale log will be dumped to `/dev/null` (i.e., deleted) | `1` |
 
@@ -43,7 +46,7 @@ The Docker mod exposes a bunch of environment variables that you can use to conf
 | `TAILSCALE_BE_EXIT_NODE` (undocumented) | Set this to `1` to allow the container to act as an exit node. You may need to approve this in the admin console. | `0` |
 | `TAILSCALE_STATEFUL_FILTERING` (new) | Sets `tailscale up --stateful-filtering`. Addresses the issue: [No longer working #24](https://github.com/tailscale-dev/docker-mod/issues/24) (chukysoria/docker-mod) | `0` |
 | `TAILSCALE_LOGIN_SERVER` | Set this value if you are using a custom login/control server (Such as headscale) | `https://headscale.example.com` |
-| `TAILSCALE_FURTHER_FLAGS` (new) | Any additional flags you wish to use with `tailscale up <flags>`. You could have always done this by overloading `TAILSCALE_HOSTNAME` or another used ENV. | `--accept-dns` |
+| `TAILSCALE_FURTHER_FLAGS` (new) | Any additional flags you wish to use with `tailscale up <flags>`. You could have always done this by overloading `TAILSCALE_HOSTNAME` or another used ENV. | `--accept-dns=false` |
 
 | Environment Variable (`tailscale serve/funnel`) | Description | Example |
 | :-------------------------------------------- | :---------- | :------ |
