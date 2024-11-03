@@ -16,11 +16,11 @@ status=$?
 
 # Check if the command failed and if the specific error message is present
 if [ $status -ne 0 ]; then
-    echo "Error detected: iptables failed with the output $output"
+    echo "[IPTables] Error detected: iptables failed with the output $output"
 
     # Check if iptables-legacy exists
     if ! command -v iptables-legacy &> /dev/null; then
-        echo "iptables-legacy not found, installing..."
+        echo "[IPTables] iptables-legacy not found, installing..."
         if [ -f /usr/bin/apt ]; then
             apt-get update
             apt-get install -y iptables-legacy
@@ -33,17 +33,20 @@ if [ $status -ne 0 ]; then
     if command -v iptables-legacy &> /dev/null; then
         iptables_path=$(command -v iptables)
         iptables_legacy_path=$(command -v iptables-legacy)
+        ip6tables_path=$(command -v ip6tables)
+        ip6tables_legacy_path=$(command -v ip6tables-legacy)
         if [ -n "$iptables_path" ]; then
-            echo "Creating symbolic link..."
+            echo "[IPTables] Creating symbolic link to iptables-legacy"
             sudo ln -sf "$iptables_legacy_path" "$iptables_path"
-            echo "Symbolic link created."
+            sudo ln -sf "$ip6tables_legacy_path" "$ip6tables_path"
+            echo "[IPTables] Symbolic link created."
         else
-            echo "iptables not found."
+            echo "[IPTables] iptables not found."
         fi
     fi
 
 else
-    echo "iptables command succeeded "
+    echo "[IPTables] iptables command succeeded "
 fi
 
 FLAGS=""
