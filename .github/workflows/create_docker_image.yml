@@ -69,8 +69,8 @@ jobs:
         platforms: linux/amd64,linux/arm64
         # platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
         tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}:${{ steps.tag.outputs.GH_BUILD_TAG }}
-          ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.repository }}:${{ steps.tag.outputs.GH_LATEST_TAG }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/tailscale-docker-mod:${{ steps.tag.outputs.GH_BUILD_TAG }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/tailscale-docker-mod:${{ steps.tag.outputs.GH_LATEST_TAG }}
         build-args: |
           BUILD_TIME=${{ steps.date.outputs.BUILD_TIME }}
           S6_OVERLAY_VERSION=${{ github.event.inputs.s6_version }}
