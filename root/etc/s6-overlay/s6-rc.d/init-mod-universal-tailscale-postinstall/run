@@ -19,21 +19,66 @@ case `uname -m` in
     riscv64)
         GOARCH="riscv64"
         ;;
+    armv7l)
+        GOARCH="arm"
+        ;;
     *)
         echo "Unknown CPU type $(uname -m), please file a bug at https://github.com/tailscale-dev/docker-mod"
         exit 125
         ;;
 esac
 
-tarball="$(curl 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r .Tarballs.${GOARCH})"
+# tarball="$(curl 'https://pkgs.tailscale.com/stable/?mode=json' | jq -r .Tarballs.${GOARCH})"
+URL="https://pkgs.tailscale.com/stable/?mode=json"
+
+# Try to fetch the tarball URL with curl
+tarball=$(curl -s "$URL" | jq -r .Tarballs.${GOARCH})
+if [ $? -ne 0 ]; then
+    echo "Curl failed. Trying wget..."
+    tarball=$(wget -qO- "$URL" | jq -r .Tarballs.${GOARCH})
+    if [ $? -ne 0 ]; then
+        echo "Both curl and wget failed to fetch the tarball URL."
+        exit 1
+    fi
+fi
 version="$(echo ${tarball} | cut -d_ -f2)"
 
-curl "https://pkgs.tailscale.com/stable/${tarball}" -o tailscale.tgz
+if [ -f /usr/bin/tailscale ]; then
+  installed_version="$(tailscale -V | head -n1)"
+else
+  installed_version=""
+fi
 
-tar xzf tailscale.tgz
+if [[ $version == $installed_version ]]; then
+  echo "[mod-tailscale] Tailscale ${version} already installed"
+else
+  dir="$(mktemp -d)"
+  pushd .
+  cd "${dir}"
+  
+  echo "[mod-tailscale] Downloading Tailscale ${version}"
 
-cp -vrf "tailscale_${version}_${GOARCH}"/tailscale /usr/bin/tailscale
-cp -vrf "tailscale_${version}_${GOARCH}"/tailscaled /usr/sbin/tailscaled
+  # curl "https://pkgs.tailscale.com/stable/${tarball}" -o tailscale.tgz
+  URL="https://pkgs.tailscale.com/stable/${tarball}"
+  OUTPUT="tailscale.tgz"
 
-popd
-rm -rf "${dir}"
+  if curl -fSL "$URL" -o "$OUTPUT"; then
+    echo "Download succeeded with curl."
+  else
+    echo "Curl failed. Trying wget..."
+      if wget "$URL" -O "$OUTPUT"; then
+        echo "Download succeeded with wget."
+      else
+        echo "Both curl and wget failed."
+        exit 1
+      fi
+   fi
+
+  tar xzf tailscale.tgz
+
+  cp -vrf "tailscale_${version}_${GOARCH}"/tailscale /usr/bin/tailscale
+  cp -vrf "tailscale_${version}_${GOARCH}"/tailscaled /usr/sbin/tailscaled
+
+  popd
+  rm -rf "${dir}"
+fi

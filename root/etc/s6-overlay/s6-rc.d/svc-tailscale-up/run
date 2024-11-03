@@ -19,12 +19,17 @@ fi
 
 if [ -v TAILSCALE_BE_EXIT_NODE ]; then
     echo '[!] acting as an exit node, you may need to approve this in the admin console'
-    FLAGS="${FLAGS} --advertise-exit-node=${TS_BE_EXIT_NODE}"
+    FLAGS="${FLAGS} --advertise-exit-node=${TAILSCALE_BE_EXIT_NODE}"
 fi
 
 if [ -v TAILSCALE_LOGIN_SERVER ]; then
     echo '[!] Using a custom login server'
     FLAGS="${FLAGS} --login-server=${TAILSCALE_LOGIN_SERVER}"
+fi
+
+if [ -v TAILSCALE_STATEFUL_FILTERING ]; then
+    echo '[!] Using a custom login server'
+    FLAGS="${FLAGS} --stateful-filtering"
 fi
 
 if [ -v TAILSCALE_FURTHER_FLAGS ]; then
@@ -41,4 +46,7 @@ if [ -v TAILSCALE_SERVE_PORT ] && [ -v TAILSCALE_SERVE_MODE ]; then
     else
         tailscale serve --bg --"${TAILSCALE_SERVE_MODE}"=443 http://localhost:"${TAILSCALE_SERVE_PORT}"
     fi
+else
+    tailscale serve reset
+    tailscale funnel reset 
 fi
