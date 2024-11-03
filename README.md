@@ -35,7 +35,7 @@ The Docker mod exposes a bunch of environment variables that you can use to conf
 | :--------------------------------------------- | :---------- | :------ |
 | `DOCKER_MODS` | The list of additional mods to layer on top of the running container, separated by pipes. | `ghcr.io/tailscale-dev/docker-mod:main` or `zorbatherainy/tailscale-docker-mod:latest` |
 | `TAILSCALE_STATE_DIR` | The directory where the Tailscale state will be stored, this should be pointed to a Docker volume. If it is not, then the node will set itself as ephemeral, making the node disappear from your tailnet when the container exits. | `/var/lib/tailscale` |
-| `TAILSCALE_USE_IPTABLES` (new) | `iptables` was causing problems. So, I disbaled it.  If you want it back, set this ENV. | `1` |
+| `TAILSCALE_USE_IPTABLES` (new) | `iptables` was causing problems. So, I disabeled it.  If you want it back, set this ENV. | `1` |
 | `TAILSCALE_AUTO_UPDATE` (new) | when set, Tailscale will auto-update to the latest verison without prompting. | `1` |
 | `TAILSCALE_TAILSCALED_LOG` (undocumented) | If enabled the tailscale log will be dumped to `/dev/null` (i.e., deleted) | `1` |
 
