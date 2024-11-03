@@ -10,14 +10,10 @@ on:
         options:
           - testing
           - production
-      caddy_version:
-        description: 'Version of Caddy to build from (will always be alpine)'
+      release_version:
+        description: 'Version number for DockerHub tags'
         required: true
-        default: '2.8.4'
-      s6_version:
-        description: 'Version of S6-Overlay to include in the build'
-        required: true
-        default: '3.2.0.2'
+        default: '1.0.0'
 
 jobs:
   build:
@@ -40,7 +36,7 @@ jobs:
           echo "GH_BUILD_TAG=$buildTag" >> $GITHUB_OUTPUT
           echo "GH_LATEST_TAG=testing" >> $GITHUB_OUTPUT
         elif [ "${{ github.event.inputs.image_purpose }}" == "production" ]; then
-          echo "GH_BUILD_TAG=${{ github.event.inputs.caddy_version }}" >> $GITHUB_OUTPUT
+          echo "GH_BUILD_TAG=${{ github.event.inputs.release_version }}" >> $GITHUB_OUTPUT
           echo "GH_LATEST_TAG=latest" >> $GITHUB_OUTPUT
         else
           echo "Invalid base image specified" >&2
@@ -66,12 +62,11 @@ jobs:
         context: .
         push: true
         # platforms: linux/amd64
-        platforms: linux/amd64,linux/arm64
-        # platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+        # platforms: linux/amd64,linux/arm64
+        platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
         tags: |
           ${{ secrets.DOCKERHUB_USERNAME }}/tailscale-docker-mod:${{ steps.tag.outputs.GH_BUILD_TAG }}
           ${{ secrets.DOCKERHUB_USERNAME }}/tailscale-docker-mod:${{ steps.tag.outputs.GH_LATEST_TAG }}
         build-args: |
           BUILD_TIME=${{ steps.date.outputs.BUILD_TIME }}
-          S6_OVERLAY_VERSION=${{ github.event.inputs.s6_version }}
-          CADDY_VERSION=${{ github.event.inputs.caddy_version }}
+          RELEASE_VERSION=${{ github.event.inputs.release_version }}
