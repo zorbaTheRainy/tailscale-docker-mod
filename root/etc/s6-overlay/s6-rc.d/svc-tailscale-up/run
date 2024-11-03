@@ -93,7 +93,7 @@ if [ -v TAILSCALE_FURTHER_FLAGS ]; then
     FLAGS="${FLAGS} ${TAILSCALE_FURTHER_FLAGS}"
 fi
 
-echo "[!] `tailscale up ${FLAGS}`"
+echo "[!] tailscale up ${FLAGS}"
 tailscale up $FLAGS
 
 # configure serve or funnel
