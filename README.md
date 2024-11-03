@@ -12,7 +12,7 @@ This is a fork of [tailscale-dev/docker-mod](https://github.com/tailscale-dev/do
 
 ### Changes
 
-* removed the installation of `iptables`, which was causing the error .  This forces `tailscaled --tun=userspace-networking` which it should have been using anyhow, but if `iptables` was installed, it didn't actually use.  `TAILSCALE_USE_IPTABLES` will revert this change.
+* removed the installation of `iptables`, which was causing the error `failed: could not setup netfilter: could not create new netfilter: could not get iptables version: exit status 1`.  This forces `tailscaled --tun=userspace-networking`.  `TAILSCALE_USE_IPTABLES` will revert this change.
 * added the ENV `TAILSCALE_FURTHER_FLAGS` which is a more elegant way of adding `tailscale up <flags>` than overloading the other ENV with your desired, unsupported flag.
 * added the ENV `TAILSCALE_AUTO_UPDATE` to enable upgrading Tailscale.
 * added the ENV `TAILSCALE_STATEFUL_FILTERING` which sets `tailscale up --stateful-filtering`. Addresses the issue: [No longer working #24](https://github.com/tailscale-dev/docker-mod/issues/24) (chukysoria)
