@@ -10,6 +10,42 @@ is_true() {
 }
 # -------------------------------------------
 
+# Run iptables and capture the output and exit status
+output=$(iptables 2>&1)
+status=$?
+
+# Check if the command failed and if the specific error message is present
+if [ $status -ne 0 ]; then
+    echo "Error detected: iptables failed with the output $output"
+
+    # Check if iptables-legacy exists
+    if ! command -v iptables-legacy &> /dev/null; then
+        echo "iptables-legacy not found, installing..."
+        if [ -f /usr/bin/apt ]; then
+            apt-get update
+            apt-get install -y iptables-legacy
+        elif [ -f /sbin/apk ]; then
+            apk add iptables-legacy
+        fi
+    fi
+
+    # Create symbolic link
+    if ! command -v iptables-legacy &> /dev/null; then
+        iptables_path=$(command -v iptables)
+        iptables_legacy_path=$(command -v iptables-legacy)
+        if [ -n "$iptables_path" ]; then
+            echo "Creating symbolic link..."
+            sudo ln -sf "$iptables_legacy_path" "$iptables_path"
+            echo "Symbolic link created."
+        else
+            echo "iptables not found."
+        fi
+    fi
+
+else
+    echo "iptables command succeeded "
+fi
+
 FLAGS=""
 
 # configure `tailscale up`
