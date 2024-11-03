@@ -90,7 +90,8 @@ fi
 
 if [ -v TAILSCALE_FURTHER_FLAGS ]; then
     echo '[!] adding additional flags to `tailscale up`'
-    FLAGS="${FLAGS} ${TAILSCALE_FURTHER_FLAGS}"
+    clean_env=$(echo "$TAILSCALE_FURTHER_FLAGS" | tr -d '"'\''')
+    FLAGS="${FLAGS} ${clean_env}"
 fi
 
 echo "[!] tailscale up ${FLAGS}"
