@@ -5,6 +5,8 @@ if [ -f /usr/bin/apt ]; then
     echo "\
         curl \
         wget \
+        iputils-ping \
+        dnsutils \
         jq" >> /mod-repo-packages-to-install.list
         # iptables" >> /mod-repo-packages-to-install.list
 
