@@ -3,6 +3,8 @@
 ## Ubuntu
 if [ -f /usr/bin/apt ]; then
     echo "\
+        curl \
+        wget \
         jq" >> /mod-repo-packages-to-install.list
         # iptables" >> /mod-repo-packages-to-install.list
 
@@ -10,6 +12,8 @@ fi
 # Alpine
 if [ -f /sbin/apk ]; then
     echo "\
+        curl \
+        wget \
         jq" >> /mod-repo-packages-to-install.list
         # iptables" >> /mod-repo-packages-to-install.list
 fi

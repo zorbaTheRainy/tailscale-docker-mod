@@ -27,6 +27,11 @@ if [ -v TAILSCALE_LOGIN_SERVER ]; then
     FLAGS="${FLAGS} --login-server=${TAILSCALE_LOGIN_SERVER}"
 fi
 
+if [ -v TAILSCALE_FURTHER_PARAMS ]; then
+    echo '[!] Using a custom login server'
+    FLAGS="${FLAGS} ${TAILSCALE_FURTHER_PARAMS}"
+fi
+
 tailscale up $FLAGS
 
 # configure serve or funnel
