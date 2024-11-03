@@ -19,35 +19,40 @@ if [ $status -ne 0 ]; then
     echo "[IPTables] Error detected: iptables failed with the output $output"
 
     # Check if iptables-legacy exists
-    if ! command -v iptables-legacy &> /dev/null; then
-        echo "[IPTables] iptables-legacy not found, installing..."
-        if [ -f /usr/bin/apt ]; then
-            apt-get update
-            apt-get install -y iptables-legacy
-        elif [ -f /sbin/apk ]; then
-            apk add iptables-legacy
+    if command -v iptables &> /dev/null; then
+        if ! command -v iptables-legacy &> /dev/null; then
+            echo "[IPTables] iptables-legacy not found, installing..."
+            if [ -f /usr/bin/apt ]; then
+                apt-get update
+                apt-get install -y iptables-legacy
+            elif [ -f /sbin/apk ]; then
+                apk add iptables-legacy
+            fi
         fi
-    fi
 
-    # Create symbolic link
-    if command -v iptables-legacy &> /dev/null; then
-        iptables_path=$(command -v iptables)
-        iptables_legacy_path=$(command -v iptables-legacy)
-        ip6tables_path=$(command -v ip6tables)
-        ip6tables_legacy_path=$(command -v ip6tables-legacy)
-        if [ -n "$iptables_path" ]; then
-            echo "[IPTables] Creating symbolic link to iptables-legacy"
-            sudo ln -sf "$iptables_legacy_path" "$iptables_path"
-            sudo ln -sf "$ip6tables_legacy_path" "$ip6tables_path"
-            echo "[IPTables] Symbolic link created."
-        else
-            echo "[IPTables] iptables not found."
+        # Create symbolic link
+        if command -v iptables-legacy &> /dev/null; then
+            iptables_path=$(command -v iptables)
+            iptables_legacy_path=$(command -v iptables-legacy)
+            ip6tables_path=$(command -v ip6tables)
+            ip6tables_legacy_path=$(command -v ip6tables-legacy)
+            if [ -n "$iptables_path" ]; then
+                echo "[IPTables] Creating symbolic link to iptables-legacy"
+                sudo ln -sf "$iptables_legacy_path" "$iptables_path"
+                sudo ln -sf "$ip6tables_legacy_path" "$ip6tables_path"
+                echo "[IPTables] Symbolic link created."
+            else
+                echo "[IPTables] iptables not found."
+            fi
         fi
+    else
+        echo "[IPTables] iptables command not found and will not be installed."
     fi
-
 else
     echo "[IPTables] iptables command succeeded "
 fi
+
+# -------------------------------------------
 
 FLAGS=""
 
@@ -88,6 +93,7 @@ if [ -v TAILSCALE_FURTHER_FLAGS ]; then
     FLAGS="${FLAGS} ${TAILSCALE_FURTHER_FLAGS}"
 fi
 
+echo '[!] `tailscale up ${FLAGS}`'
 tailscale up $FLAGS
 
 # configure serve or funnel
