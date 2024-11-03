@@ -30,7 +30,7 @@ if [ $status -ne 0 ]; then
     fi
 
     # Create symbolic link
-    if ! command -v iptables-legacy &> /dev/null; then
+    if command -v iptables-legacy &> /dev/null; then
         iptables_path=$(command -v iptables)
         iptables_legacy_path=$(command -v iptables-legacy)
         if [ -n "$iptables_path" ]; then
